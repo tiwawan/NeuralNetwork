@@ -16,4 +16,10 @@ def zeroOrOne(p):
         return 1
     else:
         return 0
+
+def randomBinaryVec(n):
+    v = np.random.random([n,1])
+    for i in range(0,n):
+        v[i] = threshold(v[i])
+    return v
     

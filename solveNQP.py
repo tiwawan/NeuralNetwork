@@ -20,7 +20,7 @@ def energyNHP(x):
     e_row = alg.norm(np.sum(M1, 1), 2)
     e_col = alg.norm(np.sum(M2, 1), 2)
     
-    return e_row + e_col
+    return e_row * e_row + e_col * e_col
 
 def findSqrt(nsq, maxn):
     for i in range(0, maxn):
@@ -43,7 +43,7 @@ def expandEnergy(efunc, n):
         for j in range(0, n):
             if i==j:
                 continue
-            W[i,j] = -2 * (efunc(x_eye[:,i] + x_eye[:,j]) - t[i] - t[j] - c)
+            W[i,j] = -1 * (efunc(x_eye[:,i] + x_eye[:,j]) - t[i] - t[j] - c)
 
     d = {};
     d["c"] = c
@@ -54,19 +54,40 @@ def expandEnergy(efunc, n):
 
 
 if __name__ == "__main__":
-    x = np.ones([1, 2]);
-    en = energyNHP(x)
-    d = expandEnergy(energyNHP, 4);
 
-    nhp = rnn(4, 1, 1)
+    n = 4
+    n2 = n*n
+
+    d = expandEnergy(energyNHP, n2);
+
+    nhp = rnn(n2, 1, 0)
     nhp.setThreshold(d["t"]);
     nhp.setWeight(d["W"]);
-    nhp.setValue(np.array([0,1,0,1]))
 
-    for i in range(0,64):
-        nhp.update()
-        nhp.printValue()
-        print(energyNHP(nhp.getValue()))
+    num_loop = 500
+
+    solutions = [0] * num_loop
+    subs = [0] * num_loop
+    count = 0
+
+    for i in range(0,num_loop):
+        nhp.setValue(randomBinaryVec(n2))
+        for j in range(0,num_loop):
+            nhp.update()
+            val = nhp.getValue()
+            board = np.reshape(val, [n,n])
+            
+            if energyNHP(val) < 0.001:
+                sub = tuple(np.where(val>0.5)[0])
+                if sub in subs:
+                    pass
+                else:
+                    solutions[count] = np.matrix(board)
+                    subs[count] = sub
+                    count = count + 1
+                    print(board)
+                break
+    
         
     
 
