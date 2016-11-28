@@ -60,7 +60,9 @@ if __name__ == "__main__":
 
     d = expandEnergy(energyNHP, n2);
 
-    nhp = rnn(n2, 1, 0)
+    a = 100
+
+    nhp = rnn(n2, a, 0)
     nhp.setThreshold(d["t"]);
     nhp.setWeight(d["W"]);
 
@@ -70,6 +72,8 @@ if __name__ == "__main__":
     subs = [0] * num_loop
     count = 0
 
+    update_until_end = [0] * num_loop
+
     for i in range(0,num_loop):
         nhp.setValue(randomBinaryVec(n2))
         for j in range(0,num_loop):
@@ -78,6 +82,7 @@ if __name__ == "__main__":
             board = np.reshape(val, [n,n])
             
             if energyNHP(val) < 0.001:
+                update_until_end[i] = j+1
                 sub = tuple(np.where(val>0.5)[0])
                 if sub in subs:
                     pass
@@ -88,7 +93,8 @@ if __name__ == "__main__":
                     print(board)
                 break
     
-        
+    ave_update = np.average(update_until_end)
+    print("average update count:" + str(ave_update))
     
 
 
